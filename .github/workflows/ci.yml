@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 1-DevOps/idempotweet/**
+      - .github/workflows/**
   workflow_call:
 jobs:
   ci:
