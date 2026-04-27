@@ -1,3 +1,12 @@
 .kiro
 .env
 .idea
+target/
+/target
+.idea/
+.idea
+*.iml
+out/
+bin/
+obj/
+.idea
