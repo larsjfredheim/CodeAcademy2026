@@ -18,18 +18,19 @@ Console.WriteLine("Connected to RabbitMQ");
 // - Create a consumer and subscribe to the queue
 // - Handle incoming messages by deserializing the JSON and printing the content to the console
 
-
 /*
+#region Fanout
+
 // Create a channel and declare the queue
 using var channel = await connection.CreateChannelAsync();
 await channel.QueueDeclareAsync(
-    queue: "fanout-queue-1",
+    queue: "fanout-queue-2",
     durable: true,
     exclusive: false,
-    autoDelete: false,
+    autoDelete: true,
     arguments: null);
 await channel.QueueBindAsync(
-    queue: "fanout-queue-1",
+    queue: "fanout-queue-2",
     exchange: "fanout-exchange",
     routingKey: string.Empty,
     arguments: null);
@@ -43,7 +44,7 @@ consumer.ReceivedAsync += async (sender, eventArgs) =>
     var body = eventArgs.Body.ToArray();
     var message = JsonSerializer.Deserialize<JsonNode>(Encoding.UTF8.GetString(body));
 
-    Console.WriteLine($"Received message: {message}");
+    Console.WriteLine($"Received message: {message} (Consumer 2)");
 
     // Simulate processing time
     await Task.Delay(1000);
@@ -53,28 +54,30 @@ consumer.ReceivedAsync += async (sender, eventArgs) =>
 };
 // Start consuming messages
 await channel.BasicConsumeAsync(
-    queue: "fanout-queue-1",
+    queue: "fanout-queue-2",
     autoAck: false,
     consumerTag: "",
     noLocal: false,
     exclusive: false,
     arguments: null,
     consumer: consumer);
-*/
 
+#endregion
+*/
+    
 #region Direct
 // Create a channel and declare the queue
 using var channel = await connection.CreateChannelAsync();
 await channel.QueueDeclareAsync(
-    queue: "direct-queue-1",
+    queue: "direct-queue-2",
     durable: true,
     exclusive: false,
     autoDelete: false,
     arguments: null);
 await channel.QueueBindAsync(
-    queue: "direct-queue-1",
+    queue: "direct-queue-2",
     exchange: "direct-exchange",
-    routingKey: "RK1",
+    routingKey: "RK2",
     arguments: null);
 
 // Set up a consumer to listen for messages
@@ -86,7 +89,7 @@ consumer.ReceivedAsync += async (sender, eventArgs) =>
     var body = eventArgs.Body.ToArray();
     var message = JsonSerializer.Deserialize<JsonNode>(Encoding.UTF8.GetString(body));
 
-    Console.WriteLine($"Received message: {message} (Consumer 1)");
+    Console.WriteLine($"Received message: {message} (Consumer 2)");
 
     // Simulate processing time
     await Task.Delay(1000);
@@ -96,7 +99,7 @@ consumer.ReceivedAsync += async (sender, eventArgs) =>
 };
 // Start consuming messages
 await channel.BasicConsumeAsync(
-    queue: "direct-queue-1",
+    queue: "direct-queue-2",
     autoAck: false,
     consumerTag: "",
     noLocal: false,
