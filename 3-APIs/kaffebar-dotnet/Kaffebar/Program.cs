@@ -1,3 +1,5 @@
+using Kaffebar.Controllers;
+using Kaffebar.Models;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,8 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Registrer OpenAPI-tjenestene. Disse genererer spesifikasjonen
 // automatisk basert på endepunktene og typene i prosjektet (code-first).
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+app.MapControllers();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
@@ -32,7 +39,3 @@ app.MapGet("/menu", () => new[]
 .WithDescription("Returnerer en liste over alle tilgjengelige kaffedrikker i kaffebaren.");
 
 app.Run();
-
-// DTO-er kan ligge i Program.cs når prosjektet er lite.
-// Etter hvert er det ryddig å flytte dem til egne filer i en Models-mappe.
-public record Coffee(Guid Id, string Name, decimal Price);
