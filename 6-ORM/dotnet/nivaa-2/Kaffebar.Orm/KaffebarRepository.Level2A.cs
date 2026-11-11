@@ -7,16 +7,34 @@ namespace Kaffebar.Orm;
 public partial class KaffebarRepository
 {
     /// <summary>Alle bestillinger med linjer, bønner og brennerier, i én spørring.</summary>
-    public Task<List<Order>> GetAllOrdersWithDetailsAsync()
+    public async Task<List<Order>> GetAllOrdersWithDetailsAsync()
     {
-        // TODO 2A: som GetAllOrdersAsync, men med hele grafen i én og samme spørring.
-        throw new NotImplementedException("Oppgave 2A");
+        return await db.Orders.Include(o => o.Lines)
+            .ThenInclude(l => l.Bean)
+            .ThenInclude(b => b.Roastery)
+            .OrderBy(o => o.CreatedAt)
+            .ToListAsync();
     }
 
     /// <summary>Kvitteringene som DTO-er, uten å laste entiteter.</summary>
-    public Task<List<ReceiptDto>> GetReceiptsAsync()
+    public async Task<List<ReceiptDto>> GetReceiptsAsync()
     {
-        // TODO 2A, del 2: bygg ReceiptDto direkte i spørringen med Select. Ingen Include.
-        throw new NotImplementedException("Oppgave 2A, del 2");
+        return await db.Orders
+            .OrderBy(o => o.CreatedAt)
+            .Select(o => new ReceiptDto
+            (
+                o.CustomerName,
+                o.Status,
+                o.TotalPrice,
+                o.Lines.Select(l => new ReceiptLineDto
+                (
+                    l.Quantity,
+                    l.DrinkName,
+                    l.Size,
+                    l.Bean.Name,
+                    l.Bean.Roastery.Name
+                )).ToList()
+            ))
+            .ToListAsync();
     }
 }

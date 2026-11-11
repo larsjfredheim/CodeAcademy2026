@@ -18,4 +18,23 @@ public class Order
 
     public virtual List<OrderLine> Lines { get; set; } = [];
     public virtual List<StatusChange> StatusHistory { get; set; } = [];
+
+    public static void AddLine(Order order, NewLine line)
+    {
+        order.Lines.Add(new OrderLine
+        {
+            DrinkName = line.DrinkName,
+            Size = line.Size,
+            Quantity = line.Quantity,
+            UnitPrice = line.UnitPrice,
+            BeanId = line.BeanId
+        });
+        order.TotalPrice += line.Quantity * line.UnitPrice;
+    }
+
+    public static void RemoveLine(Order order, OrderLine line)
+    {
+        order.Lines.Remove(line);
+        order.TotalPrice -= line.Quantity * line.UnitPrice;
+    }
 }

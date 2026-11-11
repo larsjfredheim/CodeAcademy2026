@@ -21,14 +21,15 @@ public partial class KaffebarRepository
 
         foreach (var line in lines)
         {
-            order.Lines.Add(new OrderLine
+            Order.AddLine(order, line);
+            /*order.Lines.Add(new OrderLine
             {
                 DrinkName = line.DrinkName,
                 Size = line.Size,
                 Quantity = line.Quantity,
                 UnitPrice = line.UnitPrice,
                 BeanId = line.BeanId
-            });
+            });*/
         }
 
         db.Orders.Add(order);
@@ -39,8 +40,15 @@ public partial class KaffebarRepository
     /// <summary>Kunden angrer på én av linjene.</summary>
     public async Task RemoveLineAsync(Guid orderId, int lineId)
     {
-        var order = await db.Orders.SingleAsync(o => o.Id == orderId);
-        order.Lines.RemoveAll(l => l.Id == lineId);
+        var order = await db.Orders
+            .Include(o => o.Lines)
+            .Where(o => o.Id == orderId)
+            .SingleAsync();
+        
+        var line = order.Lines.Single(l => l.Id == lineId);
+
+        Order.RemoveLine(order, line);
+        
         await db.SaveChangesAsync();
     }
 }
