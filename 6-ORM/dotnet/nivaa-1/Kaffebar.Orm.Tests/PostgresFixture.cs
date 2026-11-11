@@ -1,3 +1,4 @@
+using DotNet.Testcontainers.Builders;
 using Kaffebar.Orm.Data;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -43,7 +44,12 @@ public class PostgresFixture : IAsyncLifetime
             var builder = new PostgreSqlBuilder("docker.io/library/postgres:18-alpine")
                 .WithDatabase("kaffebar")
                 .WithUsername("kaffebar")
-                .WithPassword("kaffebar");
+                .WithPassword("kaffebar")
+                // Colima o.l. videresender porten til verten litt etter at Postgres er klar i containeren.
+                // Erstatter standardventingen, så pg_isready må med her også.
+                .WithWaitStrategy(Wait.ForUnixContainer()
+                    .UntilCommandIsCompleted("pg_isready", "--host", "localhost", "--dbname", "kaffebar", "--username", "kaffebar")
+                    .UntilExternalTcpPortIsAvailable(5432));
             if (endpoint is not null)
                 builder = builder.WithDockerEndpoint(endpoint);
 

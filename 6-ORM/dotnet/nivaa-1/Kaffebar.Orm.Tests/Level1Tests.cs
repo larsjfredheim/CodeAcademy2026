@@ -44,6 +44,9 @@ public class Level1Tests(PostgresFixture fixture, ITestOutputHelper output) : IC
         await using var db = fixture.CreateContext(output.WriteLine, counter, lazyLoading: true);
 
         var orders = await new KaffebarRepository(db).GetAllOrdersAsync();
+        var type = orders[0].GetType();
+        output.Heading(type.ToString());
+        
         output.Heading("Kvitteringene");
         Receipts.Write(orders, output.WriteLine);
 
